@@ -1,4 +1,7 @@
+require('dotenv').config();
+
 const https = require('https');
+const workers = require('./workers');
 
 const options = {
     // Konotop
@@ -23,7 +26,7 @@ const options = {
         bottom: 46.923851
     },
     requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
-    updateInterval: minutes(5)
+    updateInterval: minutes(3)
 };
 
 const low = require('lowdb');
@@ -40,10 +43,16 @@ const dbDefaults = {
 db.defaults(dbDefaults)
   .write()
 
+workers.initWorkers();
 startWatcher();
 
 function startWatcher() {
-    log('starting watcher');
+    console.log('starting watcher');
+    setInterval(getUpdates, options.updateInterval);
+}
+
+function getUpdates() {
+    console.log('getting updates');
     let url = addBoundsToUrl(options.requestUrl);
     https.get(url, res => {
         res.setEncoding('utf8');
@@ -71,7 +80,7 @@ function processData(data) {
 }
 
 function processAlerts(alerts) {
-    log('processing alerts');
+    console.log('processing alerts');
     let processedAlerts = db.get('processedAlerts');
     alerts.forEach(alert => {
         let { uuid } = alert;
@@ -85,7 +94,7 @@ function processAlerts(alerts) {
 }
 
 function processUsers(users) {
-    log('processing users');
+    console.log('processing users');
     let dbUsers = db.get('users');
     let timestamp = Date.now();
 
@@ -121,8 +130,4 @@ function addBoundsToUrl(url) {
  */
 function minutes(minutes) {
     return minutes * 1000 * 60;
-}
-
-function log(message) {
-    console.log('\x1b[33m[app] %s\x1b[0m', message);
 }
