@@ -9,7 +9,7 @@ const db = low(adapter);
 
 function initWorkers() {
     console.log('init workers');
-    schedule.scheduleJob('30 * * * *', function(){
+    schedule.scheduleJob('0 * * * *', function() {
         sendWazersReport();
     });
 }
@@ -20,7 +20,6 @@ function sendWazersReport() {
 
     wazers = wazers.filter(wazer => {
         let lastSeenAgo = (now - wazer.lastSeen) / 1000 / 60;
-        console.log(lastSeenAgo);
         return lastSeenAgo < 30;
     });
 

@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const https = require('https');
-const workers = require('./workers');
 
 const options = {
     // Konotop
@@ -41,9 +40,11 @@ const dbDefaults = {
 };
 
 db.defaults(dbDefaults)
-  .write()
+.write();
 
-workers.initWorkers();
+// Init workers after db state initialized
+require('./workers').initWorkers();
+
 startWatcher();
 
 function startWatcher() {
