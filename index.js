@@ -25,7 +25,7 @@ const options = {
         bottom: 46.923851
     },
     requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
-    updateInterval: minutes(3)
+    updateInterval: minutes(1)
 };
 
 const low = require('lowdb');
