@@ -20,7 +20,7 @@ function handlePotHoleAlert(alert) {
     let { reportBy, street, location } = alert;
     let who = reportBy ? reportBy : 'Хтось';
 
-    let message = `📢 ${who} повідомляє, що на ${street} яма ☹️`;
+    let message = `📢 ${who} повідомляє, що на ${street} яма 🙂`;
 
     let inlineKeyboard = {
         inline_keyboard: [
