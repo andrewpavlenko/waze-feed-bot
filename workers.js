@@ -7,6 +7,8 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 
+const channelId = process.env.MYCHAT_ID;
+
 function initWorkers() {
     console.log('init workers');
     schedule.scheduleJob('0 * * * * *', function() {
@@ -30,7 +32,7 @@ function sendWazersReport() {
 
     if (count > 0) {
         let noun = getWazersNoun(count);
-        tg.sendMessage(`🚙 ${wazers.length} ${noun} за останню годину 😊`);
+        tg.sendMessage(channelId, `🚙 ${wazers.length} ${noun} за останню годину 😊`);
     }
 }
 
@@ -47,7 +49,7 @@ function sendDailyWazersReport() {
 
     if (count > 0) {
         let noun = getWazersNoun(count);
-        tg.sendMessage(`🚗 ${wazers.length} ${noun} за останню добу 🤗`);
+        tg.sendMessage(channelId, `🚗 ${wazers.length} ${noun} за останню добу 🤗`);
     }
 }
 

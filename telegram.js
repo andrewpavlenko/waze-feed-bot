@@ -2,14 +2,19 @@ const https = require('https');
 
 const token = process.env.BOT_TOKEN;
 const chatId = process.env.MYCHAT_ID;
+const channelId = process.env.MYCHAT_ID;
 
 const url = `https://api.telegram.org/bot${token}/`;
 
-function sendMessage(text) {
-    const params = {
+function sendMessage(chatId, text, inlineKeyboard) {
+    let params = {
         'chat_id': chatId,
         'text': text,
         'parse_mode': 'Markdown'
+    }
+
+    if (inlineKeyboard) {
+        params = Object.assign(params, { reply_markup: inlineKeyboard });
     }
 
     const options = {
@@ -31,4 +36,10 @@ function sendMessage(text) {
     req.end();
 }
 
+function sendUnknownAlertInfo(alert) {
+    let message = '```' + JSON.stringify(alert) + '```';
+    sendMessage(chatId, message);
+}
+
 exports.sendMessage = sendMessage;
+exports.sendUnknownAlertInfo = sendUnknownAlertInfo;

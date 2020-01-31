@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const https = require('https');
 
+const handlers = require('./alerts');
+
 const options = {
     // Konotop
     // areaBounds: {
@@ -25,7 +27,7 @@ const options = {
         bottom: 46.923851
     },
     requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
-    updateInterval: minutes(1)
+    updateInterval: minutes(.25)
 };
 
 const low = require('lowdb');
@@ -82,20 +84,32 @@ function processData(data) {
 
 function processAlerts(alerts) {
     console.log('processing alerts');
+    db.read();
     let processedAlerts = db.get('processedAlerts');
-    alerts.forEach(alert => {
-        let { uuid } = alert;
-        let isProcessed = processedAlerts.value().includes(uuid);
-        
-        if (!isProcessed) {
-            // Notify alert and then add to database
-            processedAlerts.push(uuid).write();
-        }
-    });
+    let processedAlertsValue = processedAlerts.value();
+
+    console.log(processedAlertsValue.length);
+
+    if (processedAlertsValue.length < 1) {
+        // Init alerts state if empty. Do not send notiications
+        alertsIds = alerts.map(alert => alert.uuid);
+        db.set('processedAlerts', alertsIds).write();
+    } else {
+        let newAlerts = alerts.filter(alert => {
+            return !processedAlertsValue.includes(alert.uuid);
+        });
+        // Notify new alerts. Do not send more than one message per second
+        newAlerts.forEach((alert, index) => {
+            setTimeout(() => {
+                handlers.handleAlert(alert);
+            }, index * 1000);
+        });
+    }
 }
 
 function processUsers(users) {
     console.log('processing users');
+    db.read();
     let dbUsers = db.get('users');
     let timestamp = Date.now();
 
