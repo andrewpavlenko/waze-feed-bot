@@ -7,10 +7,10 @@ const handlers = require('./alerts');
 const options = {
     // Konotop
     areaBounds: {
-        left: 33.140052,
-        right: 33.255099,
-        top: 51.273409,
-        bottom: 51.184777
+        left: 33.09548950195313,
+        right: 33.301071166992195,
+        top: 51.29576369260972,
+        bottom: 51.167937507772336
     },
     // Sumy
     // areaBounds: {
