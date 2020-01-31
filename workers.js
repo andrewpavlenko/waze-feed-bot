@@ -1,5 +1,6 @@
 const schedule = require('node-schedule');
 const tg = require('./telegram');
+const logger = require('./logger');
 
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
@@ -10,7 +11,7 @@ const db = low(adapter);
 const channelId = process.env.CHANNEL_ID;
 
 function initWorkers() {
-    console.log('init workers');
+    logger.info('init workers');
     schedule.scheduleJob('0 * * * *', function() {
         sendWazersReport();
     });

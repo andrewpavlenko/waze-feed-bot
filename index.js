@@ -1,8 +1,8 @@
 require('dotenv').config();
 
 const https = require('https');
-
 const handlers = require('./alerts');
+const logger = require('./logger');
 
 const options = {
     // Konotop
@@ -50,12 +50,12 @@ require('./workers').initWorkers();
 startWatcher();
 
 function startWatcher() {
-    console.log('starting watcher');
+    logger.info('starting watcher');
     setInterval(getUpdates, options.updateInterval);
 }
 
 function getUpdates() {
-    console.log('getting updates');
+    logger.info('getting updates');
     let url = addBoundsToUrl(options.requestUrl);
     https.get(url, res => {
         res.setEncoding('utf8');
@@ -83,7 +83,7 @@ function processData(data) {
 }
 
 function processAlerts(alerts) {
-    console.log('processing alerts');
+    logger.info('processing alerts');
     db.read();
     let processedAlerts = db.get('processedAlerts');
     let processedAlertsValue = processedAlerts.value();
@@ -108,7 +108,7 @@ function processAlerts(alerts) {
 }
 
 function processUsers(users) {
-    console.log('processing users');
+    logger.info('processing users');
     db.read();
     let dbUsers = db.get('users');
     let timestamp = Date.now();
