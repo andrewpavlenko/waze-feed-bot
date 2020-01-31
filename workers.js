@@ -7,14 +7,14 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 
-const channelId = process.env.MYCHAT_ID;
+const channelId = process.env.CHANNEL_ID;
 
 function initWorkers() {
     console.log('init workers');
-    schedule.scheduleJob('0 * * * * *', function() {
+    schedule.scheduleJob('0 * * * *', function() {
         sendWazersReport();
     });
-    schedule.scheduleJob('30 * * * * *', function() {
+    schedule.scheduleJob('* 20 * * *', function() {
         sendDailyWazersReport();
     });
 }

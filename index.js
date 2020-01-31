@@ -6,12 +6,12 @@ const handlers = require('./alerts');
 
 const options = {
     // Konotop
-    // areaBounds: {
-    //     left: 33.140052,
-    //     right: 33.255099,
-    //     top: 51.273409,
-    //     bottom: 51.184777
-    // },
+    areaBounds: {
+        left: 33.140052,
+        right: 33.255099,
+        top: 51.273409,
+        bottom: 51.184777
+    },
     // Sumy
     // areaBounds: {
     //     left: 34.743942,
@@ -20,14 +20,14 @@ const options = {
     //     bottom: 50.873301
     // },
     // Mykolaiv
-    areaBounds: {
-        left: 31.937925,
-        right: 32.062687,
-        top: 46.982323,
-        bottom: 46.923851
-    },
+    // areaBounds: {
+    //     left: 31.937925,
+    //     right: 32.062687,
+    //     top: 46.982323,
+    //     bottom: 46.923851
+    // },
     requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
-    updateInterval: minutes(.25)
+    updateInterval: minutes(.5)
 };
 
 const low = require('lowdb');
@@ -88,8 +88,6 @@ function processAlerts(alerts) {
     let processedAlerts = db.get('processedAlerts');
     let processedAlertsValue = processedAlerts.value();
 
-    console.log(processedAlertsValue.length);
-
     if (processedAlertsValue.length < 1) {
         // Init alerts state if empty. Do not send notiications
         alertsIds = alerts.map(alert => alert.uuid);
@@ -104,6 +102,8 @@ function processAlerts(alerts) {
                 handlers.handleAlert(alert);
             }, index * 1000);
         });
+        db.read();
+        db.set('processedAlerts', [...processedAlertsValue, ...newAlerts.map(a => a.uuid)]).write();
     }
 }
 

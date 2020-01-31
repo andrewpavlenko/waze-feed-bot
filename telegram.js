@@ -2,7 +2,6 @@ const https = require('https');
 
 const token = process.env.BOT_TOKEN;
 const chatId = process.env.MYCHAT_ID;
-const channelId = process.env.MYCHAT_ID;
 
 const url = `https://api.telegram.org/bot${token}/`;
 
@@ -37,7 +36,7 @@ function sendMessage(chatId, text, inlineKeyboard) {
 }
 
 function sendUnknownAlertInfo(alert) {
-    let message = '```' + JSON.stringify(alert) + '```';
+    let message = JSON.stringify(alert);
     sendMessage(chatId, message);
 }
 

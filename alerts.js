@@ -1,6 +1,6 @@
 const tg = require('./telegram');
 
-const channelId = process.env.MYCHAT_ID;
+const channelId = process.env.CHANNEL_ID;
 
 const alertTypes = {
     potHole: 'HAZARD_ON_ROAD_POT_HOLE'
@@ -20,7 +20,7 @@ function handlePotHoleAlert(alert) {
     let { reportBy, street, location } = alert;
     let who = reportBy ? reportBy : 'Хтось';
 
-    let message = `📢 ${who} повідомляє, що на ${street} яма 😕`;
+    let message = `📢 ${who} повідомляє, що на ${street} яма ☹️`;
 
     let inlineKeyboard = {
         inline_keyboard: [
