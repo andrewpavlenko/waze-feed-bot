@@ -44,15 +44,7 @@ function handleKilledAnimalAlert(alert) {
 }
 
 function handleObjectOnRoadAlert(alert) {
-    let { reportBy, street, city, location } = alert;
-    let who = reportBy ? reportBy : 'Хтось';
-    let where = street ? `на ${street}` : `у м. ${city}`;
-    where = where ? where : 'десь';
-
-    let message = `📢 ${who} повідомляє, що ${where} перешкода 🌲`;
-    let inlineKeyboard = buildLinkReplyKeyboard(location);
-
-    tg.sendMessage(channelId, message, inlineKeyboard);
+    sendAlertMessage(alert, 'перешкода 🌲');
 }
 
 function handleChitChat(alert) {
@@ -66,39 +58,15 @@ function handleChitChat(alert) {
 }
 
 function handleHazardAlert(alert) {
-    let { reportBy, street, city, location } = alert;
-    let who = reportBy ? reportBy : 'Хтось';
-    let where = street ? `на ${street}` : `у м. ${city}`;
-    where = where ? where : 'десь';
-
-    let message = `📢 ${who} повідомляє, що ${where} небезпека 💣`;
-    let inlineKeyboard = buildLinkReplyKeyboard(location);
-
-    tg.sendMessage(channelId, message, inlineKeyboard);
+    sendAlertMessage(alert, 'небезпека 💣');
 }
 
 function handleConstructionAlert(alert) {
-    let { reportBy, street, city, location } = alert;
-    let who = reportBy ? reportBy : 'Хтось';
-    let where = street ? `на ${street}` : `у м. ${city}`;
-    where = where ? where : 'десь';
-
-    let message = `📢 ${who} повідомляє, що ${where} ремонт дороги 🚧`;
-    let inlineKeyboard = buildLinkReplyKeyboard(location);
-
-    tg.sendMessage(channelId, message, inlineKeyboard);
+    sendAlertMessage(alert, 'ремонт дороги 🚧');
 }
 
 function handlePotHoleAlert(alert) {
-    let { reportBy, street, city, location } = alert;
-    let who = reportBy ? reportBy : 'Хтось';
-    let where = street ? `на ${street}` : `у м. ${city}`;
-    where = where ? where : 'десь';
-
-    let message = `📢 ${who} повідомляє, що ${where} яма 🙂`;
-    let inlineKeyboard = buildLinkReplyKeyboard(location);
-
-    tg.sendMessage(channelId, message, inlineKeyboard);
+    sendAlertMessage(alert, 'яма 😑');
 }
 
 function sendAlertMessage(alert, messageEnding) {
