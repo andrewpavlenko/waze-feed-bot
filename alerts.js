@@ -7,13 +7,14 @@ const alertTypes = {
 };
 
 function handleAlert(alert) {
-    switch (alert.subtype) {
-        case alertTypes.potHole:
-            handlePotHoleAlert(alert);
-            break;
-        default:
-            tg.sendUnknownAlertInfo(alert);
-    }
+    return new Promise(function(resolve, reject) {
+        switch (alert.subtype) {
+            case alertTypes.potHole:
+                return handlePotHoleAlert(alert);
+            default:
+                reject(alert);
+        }
+    });
 }
 
 function handlePotHoleAlert(alert) {
@@ -32,6 +33,8 @@ function handlePotHoleAlert(alert) {
     }
 
     tg.sendMessage(channelId, message, inlineKeyboard);
+
+    return alert;
 }
 
 function getAlertUrl(location) {

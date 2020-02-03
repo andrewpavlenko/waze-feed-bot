@@ -5,6 +5,7 @@ const schedule = require('node-schedule');
 const handlers = require('./alerts');
 const logger = require('./logger');
 const workers = require('./workers');
+const tg = require('./telegram');
 
 const options = {
     // Konotop
@@ -95,11 +96,14 @@ function processAlerts(alerts) {
         // Notify new alerts. Do not send more than one message per second
         newAlerts.forEach((alert, index) => {
             setTimeout(() => {
-                handlers.handleAlert(alert);
+                handlers.handleAlert(alert)
+                    .then(alert => {
+                        db.read();
+                        db.get('processedAlerts').push(alert.uuid).write();
+                    })
+                    .error(alert => tg.sendUnknownAlertInfo(alert));
             }, index * 1000);
         });
-        db.read();
-        db.set('processedAlerts', [...processedAlertsValue, ...newAlerts.map(a => a.uuid)]).write();
     }
 }
 
