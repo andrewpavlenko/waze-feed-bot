@@ -85,7 +85,7 @@ function processAlerts(alerts) {
 
     if (processedAlerts.length < 1) {
         // Init alerts state if empty. Do not send notiications
-        alertsIds = alerts.map(alert => alert.uuid);
+        let alertsIds = alerts.map(alert => alert.uuid);
         db.set('processedAlerts', alertsIds).write();
     } else {
         processOnlyNewAlerts(alerts);
