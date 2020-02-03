@@ -5,7 +5,8 @@ const channelId = process.env.CHANNEL_ID;
 const alertTypes = {
     potHole: 'HAZARD_ON_ROAD_POT_HOLE',
     construction: 'HAZARD_ON_ROAD_CONSTRUCTION',
-    hazard: 'HAZARD_ON_ROAD'
+    hazard: 'HAZARD_ON_ROAD',
+    objectOnRoad: 'HAZARD_ON_ROAD_OBJECT'
 };
 
 function handleAlert(alert) {
@@ -21,9 +22,22 @@ function handleAlert(alert) {
             return handleConstructionAlert(alert);
         case alertTypes.hazard:
             return handleHazardAlert(alert);
+        case alertTypes.objectOnRoad:
+            return handleObjectOnRoadAlert(alert);
         default:
             tg.sendUnknownAlertInfo(alert);
     }
+}
+
+function handleObjectOnRoadAlert(alert) {
+    let { reportBy, street, city, location } = alert;
+    let who = reportBy ? reportBy : 'Хтось';
+    let where = street ? `на ${street}` : `у м. ${city}`;
+
+    let message = `📢 ${who} повідомляє, що ${where} перешкода 🌲`;
+    let inlineKeyboard = buildLinkReplyKeyboard(location);
+
+    tg.sendMessage(channelId, message, inlineKeyboard);
 }
 
 function handleChitChat(alert) {
