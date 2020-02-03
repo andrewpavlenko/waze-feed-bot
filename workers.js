@@ -12,15 +12,17 @@ const channelId = process.env.CHANNEL_ID;
 
 function initWorkers() {
     logger.info('init workers');
-    schedule.scheduleJob('0 * * * *', function() {
+    schedule.scheduleJob('* 30 * * * *', function() {
         sendWazersReport();
     });
-    schedule.scheduleJob('* 20 * * *', function() {
+    schedule.scheduleJob('* * 12 * * *', function() {
         sendDailyWazersReport();
     });
 }
 
 function sendWazersReport() {
+    logger.info('sending wazers report');
+    db.read();
     let wazers = db.get('users').value();
     let now = Date.now();
 
@@ -38,6 +40,8 @@ function sendWazersReport() {
 }
 
 function sendDailyWazersReport() {
+    logger.info('sending daily wazers report');
+    db.read();
     let wazers = db.get('users').value();
     let now = Date.now();
 

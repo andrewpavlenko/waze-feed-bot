@@ -1,8 +1,10 @@
 require('dotenv').config();
 
 const https = require('https');
+const schedule = require('node-schedule');
 const handlers = require('./alerts');
 const logger = require('./logger');
+const workers = require('./workers');
 
 const options = {
     // Konotop
@@ -26,8 +28,7 @@ const options = {
     //     top: 46.982323,
     //     bottom: 46.923851
     // },
-    requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
-    updateInterval: minutes(.5)
+    requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON'
 };
 
 const low = require('lowdb');
@@ -45,14 +46,9 @@ db.defaults(dbDefaults)
 .write();
 
 // Init workers after db state initialized
-require('./workers').initWorkers();
+workers.initWorkers();
 
-startWatcher();
-
-function startWatcher() {
-    logger.info('starting watcher');
-    setInterval(getUpdates, options.updateInterval);
-}
+schedule.scheduleJob('*/20 * * * * * ', getUpdates);
 
 function getUpdates() {
     logger.info('getting updates');
@@ -138,11 +134,4 @@ function addBoundsToUrl(url) {
         url += `&${key}=${val}`;
     })
     return url;
-}
-
-/*
- * Convert minutes to miliseconds
- */
-function minutes(minutes) {
-    return minutes * 1000 * 60;
 }
