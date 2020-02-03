@@ -15,6 +15,8 @@ function handleAlert(alert) {
     switch (alert.type) {
         case 'CHIT_CHAT':
             return handleChitChat(alert);
+        case 'POLICE':
+            return handlePoliceAlert(alert);
     }
 
     switch (alert.subtype) {
@@ -33,6 +35,10 @@ function handleAlert(alert) {
         default:
             tg.sendUnknownAlertInfo(alert);
     }
+}
+
+function handlePoliceAlert() {
+    sendAlertMessage(alert, 'поліція 🚓');
 }
 
 function handleShoulderAnimalsAlert(alert) {
