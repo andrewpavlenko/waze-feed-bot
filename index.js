@@ -5,7 +5,6 @@ const schedule = require('node-schedule');
 const handlers = require('./alerts');
 const logger = require('./logger');
 const workers = require('./workers');
-const tg = require('./telegram');
 
 const options = {
     // Konotop
@@ -49,7 +48,7 @@ db.defaults(dbDefaults)
 // Init workers after db state initialized
 workers.initWorkers();
 
-schedule.scheduleJob('*/20 * * * * * ', getUpdates);
+schedule.scheduleJob('*/10 * * * * * ', getUpdates);
 
 function getUpdates() {
     logger.info('getting updates');
@@ -82,29 +81,31 @@ function processData(data) {
 function processAlerts(alerts) {
     logger.info('processing alerts');
     db.read();
-    let processedAlerts = db.get('processedAlerts');
-    let processedAlertsValue = processedAlerts.value();
+    let processedAlerts = db.get('processedAlerts').value();
 
-    if (processedAlertsValue.length < 1) {
+    if (processedAlerts.length < 1) {
         // Init alerts state if empty. Do not send notiications
         alertsIds = alerts.map(alert => alert.uuid);
         db.set('processedAlerts', alertsIds).write();
     } else {
-        let newAlerts = alerts.filter(alert => {
-            return !processedAlertsValue.includes(alert.uuid);
-        });
-        // Notify new alerts. Do not send more than one message per second
-        newAlerts.forEach((alert, index) => {
-            setTimeout(() => {
-                handlers.handleAlert(alert)
-                    .then(alert => {
-                        db.read();
-                        db.get('processedAlerts').push(alert.uuid).write();
-                    })
-                    .error(alert => tg.sendUnknownAlertInfo(alert));
-            }, index * 1000);
-        });
+        processOnlyNewAlerts(alerts);
     }
+}
+
+function processOnlyNewAlerts(alerts) {
+    let processedAlerts = db.get('processedAlerts').value();
+
+    let newAlerts = alerts.filter(alert => {
+        return !processedAlerts.includes(alert.uuid);
+    });
+    // Notify new alerts. Do not send more than one message per second
+    newAlerts.forEach((alert, index) => {
+        setTimeout(() => {
+            handlers.handleAlert(alert);
+        }, index * 1000);
+    });
+
+    db.set('processedAlerts', [...processedAlerts, ...newAlerts.map(a => a.uuid)]).write();
 }
 
 function processUsers(users) {

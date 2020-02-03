@@ -36,7 +36,12 @@ function sendMessage(chatId, text, inlineKeyboard) {
 }
 
 function sendUnknownAlertInfo(alert) {
-    let message = JSON.stringify(alert);
+    let info = JSON.stringify(alert);
+    info = info.replace(/\,/g, '\n');
+    info = info.replace(/[\{\}\"\"]/g, '');
+    info = info.replace(/\n{2}/g, '\n');
+    let message = '🤖 Невідомий тип сповіщення\n' + '\`\`\`' + info + '\`\`\`';
+
     sendMessage(chatId, message);
 }
 
