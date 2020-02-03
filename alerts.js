@@ -17,6 +17,8 @@ function handleAlert(alert) {
             return handleChitChat(alert);
         case 'POLICE':
             return handlePoliceAlert(alert);
+        case 'JAM':
+            return handleJamAlert(alert);
     }
 
     switch (alert.subtype) {
@@ -35,6 +37,10 @@ function handleAlert(alert) {
         default:
             tg.sendUnknownAlertInfo(alert);
     }
+}
+
+function handleJamAlert(alert){
+    sendAlertMessage(alert, 'затор 🚗🚕🚙');
 }
 
 function handlePoliceAlert() {
