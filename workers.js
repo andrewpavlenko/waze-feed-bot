@@ -12,7 +12,7 @@ const channelId = process.env.CHANNEL_ID;
 
 function initWorkers() {
     logger.info('init workers');
-    schedule.scheduleJob('0 30 * * * *', function() {
+    schedule.scheduleJob('0 0 * * * *', function() {
         sendWazersReport();
     });
     schedule.scheduleJob('0 0 12 * * *', function() {
