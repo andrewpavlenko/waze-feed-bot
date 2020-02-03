@@ -28,7 +28,7 @@ function sendWazersReport() {
 
     wazers = wazers.filter(wazer => {
         let lastSeenAgo = (now - wazer.lastSeen) / 1000 / 60;
-        return lastSeenAgo < 30;
+        return lastSeenAgo < 60;
     });
 
     let count = wazers.length;
