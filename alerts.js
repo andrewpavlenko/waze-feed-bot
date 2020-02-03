@@ -9,6 +9,11 @@ const alertTypes = {
 };
 
 function handleAlert(alert) {
+    switch (alert.type) {
+        case 'CHIT_CHAT':
+            return handleChitChat(alert);
+    }
+
     switch (alert.subtype) {
         case alertTypes.potHole:
             return handlePotHoleAlert(alert);
@@ -19,6 +24,16 @@ function handleAlert(alert) {
         default:
             tg.sendUnknownAlertInfo(alert);
     }
+}
+
+function handleChitChat(alert) {
+    let { reportBy, location } = alert;
+    let who = reportBy ? reportBy : 'Хтось';
+
+    let message = `📢 ${who} залишив коментар на мапі 💭`;
+    let inlineKeyboard = buildLinkReplyKeyboard(location);
+
+    tg.sendMessage(channelId, message, inlineKeyboard);
 }
 
 function handleHazardAlert(alert) {
