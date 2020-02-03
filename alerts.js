@@ -62,7 +62,7 @@ function buildLinkReplyKeyboard(location) {
     let inlineKeyboard = {
         inline_keyboard: [
             [{
-                text: 'Переглянути 🤔',
+                text: 'Переглянути 🗺️',
                 url: getAlertUrl(location)
             }]
         ]
