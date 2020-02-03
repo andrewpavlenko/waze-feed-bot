@@ -48,7 +48,7 @@ db.defaults(dbDefaults)
 // Init workers after db state initialized
 workers.initWorkers();
 
-schedule.scheduleJob('*/20 * * * * * ', getUpdates);
+schedule.scheduleJob('*/10 * * * * * ', getUpdates);
 
 function getUpdates() {
     logger.info('getting updates');
