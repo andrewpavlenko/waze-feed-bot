@@ -9,10 +9,10 @@ const workers = require('./workers');
 const options = {
     // Konotop
     areaBounds: {
-        left: 33.09548950195313,
-        right: 33.301071166992195,
-        top: 51.29576369260972,
-        bottom: 51.167937507772336
+        left: 33.11674118041993,
+        right: 33.28977584838868,
+        top: 51.284594059368345,
+        bottom: 51.18256910453232
     },
     // Sumy
     // areaBounds: {
