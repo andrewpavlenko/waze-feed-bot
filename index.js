@@ -52,7 +52,7 @@ schedule.scheduleJob('*/20 * * * * * ', getUpdates);
 
 function getUpdates() {
     logger.info('getting updates');
-    let url = addBoundsToUrl(options.requestUrl);
+    let url = addBoundsToUrl(options.areaBounds, options.requestUrl);
     https.get(url, res => {
         res.setEncoding('utf8');
         let rawData = '';
@@ -61,6 +61,72 @@ function getUpdates() {
             try {
                 const parsedData = JSON.parse(rawData);
                 processData(parsedData);
+            } catch (e) {
+                console.error(e.message);
+            }
+        });
+    });
+
+    getUpdatesForSubAreas();
+}
+
+
+/*
+ * This function splits main area into four sub areas and gets updates for each of them
+ */
+function getUpdatesForSubAreas() {
+    let { left, right, top, bottom } = options.areaBounds;
+    let middleX = right - ((right - left) / 2);
+    let middleY = top - ((top - bottom) / 2);
+
+    let subAreasBounds = [
+        {
+            left,
+            right: middleX,
+            top,
+            bottom: middleY
+        },
+        {
+            left: middleX,
+            right,
+            top,
+            bottom: middleY
+        },
+        {
+            left,
+            right: middleX,
+            top: middleY,
+            bottom
+        },
+        {
+            left: middleX,
+            right,
+            top: middleY,
+            bottom
+        }
+    ];
+
+    subAreasBounds.forEach((bounds, idx) => {
+        setTimeout(() => {
+            getUpdatesForSubArea(bounds);
+        }, 4000 * (idx + 1));
+    });
+}
+
+function getUpdatesForSubArea(bounds) {
+    logger.info('getting updates for sub area');
+    let url = addBoundsToUrl(bounds, options.requestUrl);
+    https.get(url, res => {
+        res.setEncoding('utf8');
+        let rawData = '';
+        res.on('data', (chunk) => { rawData += chunk; });
+        res.on('end', () => {
+            try {
+                const parsedData = JSON.parse(rawData);
+                let users = parsedData.users;
+                if (users) {
+                    processUsers(users);
+                }
             } catch (e) {
                 console.error(e.message);
             }
@@ -132,8 +198,7 @@ function processUsers(users) {
     });
 }
 
-function addBoundsToUrl(url) {
-    let bounds = options.areaBounds;
+function addBoundsToUrl(bounds, url) {
     Object.keys(bounds).forEach(key => {
         let val = bounds[key];
         url += `&${key}=${val}`;
