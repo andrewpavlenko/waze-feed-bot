@@ -17,6 +17,8 @@ function handleAlert(alert) {
             return handleChitChat(alert);
         case 'POLICE':
             return handlePoliceAlert(alert);
+        case 'POLICEMAN':
+            return handlePoliceAlert(alert);
         case 'JAM':
             return handleJamAlert(alert);
     }
@@ -43,7 +45,7 @@ function handleJamAlert(alert){
     sendAlertMessage(alert, 'затор 🚗🚕🚙');
 }
 
-function handlePoliceAlert() {
+function handlePoliceAlert(alert) {
     sendAlertMessage(alert, 'поліція 🚓');
 }
 
