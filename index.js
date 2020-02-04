@@ -48,7 +48,7 @@ db.defaults(dbDefaults)
 // Init workers after db state initialized
 workers.initWorkers();
 
-schedule.scheduleJob('*/20 * * * * * ', getUpdates);
+schedule.scheduleJob('*/30 * * * * * ', getUpdates);
 
 function getUpdates() {
     logger.info('getting updates');
@@ -109,7 +109,7 @@ function getUpdatesForSubAreas() {
     subAreasBounds.forEach((bounds, idx) => {
         setTimeout(() => {
             getUpdatesForSubArea(bounds);
-        }, 4000 * (idx + 1));
+        }, 6000 * (idx + 1));
     });
 }
 
