@@ -21,6 +21,8 @@ function handleAlert(alert) {
             return handlePoliceAlert(alert);
         case 'JAM':
             return handleJamAlert(alert);
+        case 'ACCIDENT':
+            return handleAccidentAlert(alert);
     }
 
     switch (alert.subtype) {
@@ -39,6 +41,10 @@ function handleAlert(alert) {
         default:
             tg.sendUnknownAlertInfo(alert);
     }
+}
+
+function handleAccidentAlert(alert) {
+    sendAlertMessage(alert, 'аварія 🚙💥🚕');
 }
 
 function handleJamAlert(alert){
