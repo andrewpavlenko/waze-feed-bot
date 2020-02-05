@@ -3,6 +3,14 @@ const tg = require('./telegram');
 const channelId = process.env.CHANNEL_ID;
 
 const alertTypes = {
+    chitChat: 'CHIT_CHAT',
+    police: 'POLICE',
+    policeman: 'POLICEMAN',
+    jam: 'JAM',
+    accident: 'ACCIDENT'
+}
+
+const alertSubTypes = {
     potHole: 'HAZARD_ON_ROAD_POT_HOLE',
     construction: 'HAZARD_ON_ROAD_CONSTRUCTION',
     hazard: 'HAZARD_ON_ROAD',
@@ -13,30 +21,29 @@ const alertTypes = {
 
 function handleAlert(alert) {
     switch (alert.type) {
-        case 'CHIT_CHAT':
+        case alertTypes.chitChat:
             return handleChitChat(alert);
-        case 'POLICE':
+        case alertTypes.police:
+        case alertTypes.policeman:
             return handlePoliceAlert(alert);
-        case 'POLICEMAN':
-            return handlePoliceAlert(alert);
-        case 'JAM':
+        case alertTypes.jam:
             return handleJamAlert(alert);
-        case 'ACCIDENT':
+        case alertTypes.accident:
             return handleAccidentAlert(alert);
     }
 
     switch (alert.subtype) {
-        case alertTypes.potHole:
+        case alertSubTypes.potHole:
             return handlePotHoleAlert(alert);
-        case alertTypes.construction:
+        case alertSubTypes.construction:
             return handleConstructionAlert(alert);
-        case alertTypes.hazard:
+        case alertSubTypes.hazard:
             return handleHazardAlert(alert);
-        case alertTypes.objectOnRoad:
+        case alertSubTypes.objectOnRoad:
             return handleObjectOnRoadAlert(alert);
-        case alertTypes.killedAnimal:
+        case alertSubTypes.killedAnimal:
             return handleKilledAnimalAlert(alert);
-        case alertTypes.shoulderAnimals:
+        case alertSubTypes.shoulderAnimals:
             return handleShoulderAnimalsAlert(alert);
         default:
             tg.sendUnknownAlertInfo(alert);
