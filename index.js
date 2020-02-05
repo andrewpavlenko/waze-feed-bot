@@ -186,16 +186,20 @@ function processUsers(users) {
         if (matchedUser.value() !== undefined) {
             matchedUser.assign({ lastSeen: timestamp }).write();
         } else {
-            let { id, mood, userName } = user;
-            dbUsers.push({
-                id,
-                mood,
-                userName,
-                lastSeen: timestamp
-            })
-            .write();
+            pushUserToDatabase(user);
         }
     });
+}
+
+function pushUserToDatabase(user) {
+    let { id, mood, userName } = user;
+    db.get('users').push({
+        id,
+        mood,
+        userName,
+        lastSeen: timestamp
+    })
+    .write();
 }
 
 function addBoundsToUrl(bounds, url) {
