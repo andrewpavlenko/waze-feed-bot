@@ -192,6 +192,7 @@ function processUsers(users) {
 }
 
 function pushUserToDatabase(user) {
+    let timestamp = Date.now();
     let { id, mood, userName } = user;
     db.get('users').push({
         id,
