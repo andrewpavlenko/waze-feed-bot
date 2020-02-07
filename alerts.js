@@ -19,6 +19,7 @@ const alertSubTypes = {
   objectOnRoad: 'HAZARD_ON_ROAD_OBJECT',
   killedAnimal: 'HAZARD_ON_ROAD_ROAD_KILL',
   shoulderAnimals: 'HAZARD_ON_SHOULDER_ANIMALS',
+  iceOnRoad: 'HAZARD_ON_ROAD_ICE',
 };
 
 function handleAlert(alert) {
@@ -47,9 +48,15 @@ function handleAlert(alert) {
       return handleKilledAnimalAlert(alert);
     case alertSubTypes.shoulderAnimals:
       return handleShoulderAnimalsAlert(alert);
+    case alertSubTypes.iceOnRoad:
+      return handleIceOnRoadAlert(alert);
     default:
       tg.sendUnknownAlertInfo(alert);
   }
+}
+
+function handleIceOnRoadAlert(alert) {
+  sendAlertMessage(alert, 'ожеледиця ❄️');
 }
 
 function handleAccidentAlert(alert) {
