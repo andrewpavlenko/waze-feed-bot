@@ -1,3 +1,5 @@
+### Waze Konotop Feed
+![screenshot](screenshot.png)
 ### Description
 This is NodeJS app that counts wazers and watches alerts and sends notifications to Telegram
 
