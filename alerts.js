@@ -20,6 +20,7 @@ const alertSubTypes = {
   killedAnimal: 'HAZARD_ON_ROAD_ROAD_KILL',
   shoulderAnimals: 'HAZARD_ON_SHOULDER_ANIMALS',
   iceOnRoad: 'HAZARD_ON_ROAD_ICE',
+  carStopped: 'HAZARD_ON_SHOULDER_CAR_STOPPED',
 };
 
 function handleAlert(alert) {
@@ -50,9 +51,15 @@ function handleAlert(alert) {
       return handleShoulderAnimalsAlert(alert);
     case alertSubTypes.iceOnRoad:
       return handleIceOnRoadAlert(alert);
+    case alertSubTypes.carStopped:
+      return handleCarStoppedAlert(alert);
     default:
       tg.sendUnknownAlertInfo(alert);
   }
+}
+
+function handleCarStoppedAlert(alert) {
+  sendAlertMessage(alert, 'зупинився автомобіль 🚙🔧');
 }
 
 function handleIceOnRoadAlert(alert) {
