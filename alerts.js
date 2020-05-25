@@ -21,6 +21,7 @@ const alertSubTypes = {
   shoulderAnimals: 'HAZARD_ON_SHOULDER_ANIMALS',
   iceOnRoad: 'HAZARD_ON_ROAD_ICE',
   carStopped: 'HAZARD_ON_SHOULDER_CAR_STOPPED',
+  weatherFog: 'HAZARD_WEATHER_FOG',
 };
 
 function handleAlert(alert) {
@@ -53,9 +54,15 @@ function handleAlert(alert) {
       return handleIceOnRoadAlert(alert);
     case alertSubTypes.carStopped:
       return handleCarStoppedAlert(alert);
+    case alertSubTypes.weatherFog:
+      return handleFogAlert(alert);
     default:
       tg.sendUnknownAlertInfo(alert);
   }
+}
+
+function handleFogAlert(alert) {
+  sendAlertMessage(alert, 'туман ☁️');
 }
 
 function handleCarStoppedAlert(alert) {
