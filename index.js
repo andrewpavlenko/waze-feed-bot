@@ -64,7 +64,7 @@ function getUpdates() {
         console.error(e.message);
       }
     });
-  });
+  }).on('error', console.error);
 
   getUpdatesForSubAreas();
 }
@@ -130,7 +130,7 @@ function getUpdatesForSubArea(bounds) {
         console.error(e.message);
       }
     });
-  });
+  }).on('error', console.error);
 }
 
 function processData(data) {
