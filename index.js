@@ -7,6 +7,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const handlers = require('./alerts');
 const logger = require('./logger');
 const workers = require('./workers');
+const Area = require('./area');
 
 const options = {
   // Konotop
@@ -41,96 +42,54 @@ const dbDefaults = {
   users: [],
 };
 
+const cityArea = new Area(options.areaBounds);
+
+function* makeDataCollectionAreasIterator() {
+  const dataCollectionAreas = [
+    cityArea,
+    cityArea.northWestQuarter,
+    cityArea.northEastQuarter,
+    cityArea.southWestQuarter,
+    cityArea.southEastQuarter
+  ];
+
+  yield* dataCollectionAreas;
+}
+
+let dataCollectionAreasIterator = makeDataCollectionAreasIterator();
+
 db.defaults(dbDefaults)
   .write();
 
 // Init workers after db state initialized
 workers.initWorkers();
 
-schedule.scheduleJob('*/30 * * * * * ', getUpdates);
+schedule.scheduleJob('*/20 * * * * * ', getUpdates);
 
 function getUpdates() {
   logger.info('getting updates');
-  let url = addBoundsToUrl(options.areaBounds, options.requestUrl);
-  https.get(url, res => {
-    res.setEncoding('utf8');
-    let rawData = '';
-    res.on('data', (chunk) => { rawData += chunk; });
-    res.on('end', () => {
-      try {
-        const parsedData = JSON.parse(rawData);
-        processData(parsedData);
-      } catch (e) {
-        console.error(e.message);
-      }
-    });
-  }).on('error', console.error);
+  let areaIteration = dataCollectionAreasIterator.next();
+  console.log(areaIteration.value);
 
-  getUpdatesForSubAreas();
-}
-
-
-/*
- * This function splits main area into four sub areas and gets updates for each of them
- */
-function getUpdatesForSubAreas() {
-  let { left, right, top, bottom } = options.areaBounds;
-  let middleX = right - ((right - left) / 2);
-  let middleY = top - ((top - bottom) / 2);
-
-  let subAreasBounds = [
-    {
-      left,
-      right: middleX,
-      top,
-      bottom: middleY,
-    },
-    {
-      left: middleX,
-      right,
-      top,
-      bottom: middleY,
-    },
-    {
-      left,
-      right: middleX,
-      top: middleY,
-      bottom,
-    },
-    {
-      left: middleX,
-      right,
-      top: middleY,
-      bottom,
-    },
-  ];
-
-  subAreasBounds.forEach((bounds, idx) => {
-    setTimeout(() => {
-      getUpdatesForSubArea(bounds);
-    }, 6000 * (idx + 1));
-  });
-}
-
-function getUpdatesForSubArea(bounds) {
-  logger.info('getting updates for sub area');
-  let url = addBoundsToUrl(bounds, options.requestUrl);
-  https.get(url, res => {
-    res.setEncoding('utf8');
-    let rawData = '';
-    res.on('data', (chunk) => { rawData += chunk; });
-    res.on('end', () => {
-      try {
-        const parsedData = JSON.parse(rawData);
-        let { users } = parsedData;
-        if (users) {
-          processUsers(users);
+  if (areaIteration.done) {
+    dataCollectionAreasIterator = makeDataCollectionAreasIterator();
+    getUpdates();
+  } else {
+    let url = addBoundsToUrl(areaIteration.value, options.requestUrl);
+    https.get(url, res => {
+      res.setEncoding('utf8');
+      let rawData = '';
+      res.on('data', (chunk) => { rawData += chunk; });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(rawData);
+          processData(parsedData);
+        } catch (e) {
+          console.error(e.message);
         }
-      } catch (e) {
-        console.error(e.message);
-      }
-    });
-  }).on('error', console.error);
+      });
+    }).on('error', console.error);
+  }
 }
 
 function processData(data) {
@@ -202,7 +161,7 @@ function pushUserToDatabase(user) {
 
 function addBoundsToUrl(bounds, sourceUrl) {
   let url = sourceUrl;
-  Object.keys(bounds).forEach(key => {
+  ['top', 'left', 'bottom', 'right'].forEach(key => {
     let val = bounds[key];
     url += `&${key}=${val}`;
   });
