@@ -69,7 +69,6 @@ schedule.scheduleJob('*/20 * * * * * ', getUpdates);
 function getUpdates() {
   logger.info('getting updates');
   let areaIteration = dataCollectionAreasIterator.next();
-  console.log(areaIteration.value);
 
   if (areaIteration.done) {
     dataCollectionAreasIterator = makeDataCollectionAreasIterator();
