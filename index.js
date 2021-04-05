@@ -6,7 +6,6 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const handlers = require('./alerts');
 const logger = require('./logger');
-const workers = require('./workers');
 const Area = require('./area');
 
 const options = {
@@ -39,7 +38,6 @@ const db = low(adapter);
 
 const dbDefaults = {
   processedAlerts: [],
-  users: [],
 };
 
 const cityArea = new Area(options.areaBounds);
@@ -60,9 +58,6 @@ let dataCollectionAreasIterator = makeDataCollectionAreasIterator();
 
 db.defaults(dbDefaults)
   .write();
-
-// Init workers after db state initialized
-workers.initWorkers();
 
 schedule.scheduleJob('*/20 * * * * * ', getUpdates);
 
@@ -96,9 +91,6 @@ function processData(data) {
   if (alerts) {
     processAlerts(alerts);
   }
-  if (users) {
-    processUsers(users);
-  }
 }
 
 function processAlerts(alerts) {
@@ -127,35 +119,6 @@ function processOnlyNewAlerts(alerts) {
   });
 
   db.set('processedAlerts', [...processedAlerts, ...newAlerts.map(a => a.uuid)]).write();
-}
-
-function processUsers(users) {
-  logger.info('processing users');
-  db.read();
-  let dbUsers = db.get('users');
-  let timestamp = Date.now();
-
-  users.forEach(user => {
-    let matchedUser = dbUsers.find({ id: user.id });
-
-    if (matchedUser.value() !== undefined) {
-      matchedUser.assign({ lastSeen: timestamp }).write();
-    } else {
-      pushUserToDatabase(user);
-    }
-  });
-}
-
-function pushUserToDatabase(user) {
-  let timestamp = Date.now();
-  let { id, mood, userName } = user;
-  db.get('users').push({
-    id,
-    mood,
-    userName,
-    lastSeen: timestamp,
-  })
-    .write();
 }
 
 function addBoundsToUrl(bounds, sourceUrl) {
