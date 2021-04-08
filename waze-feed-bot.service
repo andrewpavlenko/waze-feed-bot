@@ -1,0 +1,13 @@
+[Unit]
+Description=Waze Feed Bot
+After=network.target
+
+[Service]
+ExecStart=node /root/bots/waze-feed-bot/dist/index.js
+WorkingDirectory=/root/bots/waze-feed-bot
+KillMode=process
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
