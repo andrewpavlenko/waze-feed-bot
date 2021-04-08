@@ -1,12 +1,13 @@
 require('dotenv').config();
 
-const https = require('https');
 const schedule = require('node-schedule');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const handlers = require('./alerts');
 const logger = require('./logger');
-const Area = require('./area');
+const axios = require('axios');
+const tg = require('./telegram');
+const { config } = require('dotenv');
 
 const options = {
   // Konotop
@@ -31,63 +32,40 @@ const options = {
   //     bottom: 46.923851
   // },
   requestUrl: 'https://www.waze.com/row-rtserver/web/TGeoRSS?tk=community&format=JSON',
+  broadcastFeedUrl: 'https://www.waze.com/row-rtserver/broadcast/BroadcastRSS?buid=22c8ece8ae5b984902e7d1c69f5db4bf&format=JSON',
 };
+
+const channelId = process.env.CHANNEL_ID;
 
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 
 const dbDefaults = {
   processedAlerts: [],
+  maxWazersOnline: 0,
 };
-
-const cityArea = new Area(options.areaBounds);
-
-function* makeDataCollectionAreasIterator() {
-  const dataCollectionAreas = [
-    cityArea,
-    cityArea.northWestQuarter,
-    cityArea.northEastQuarter,
-    cityArea.southWestQuarter,
-    cityArea.southEastQuarter
-  ];
-
-  yield* dataCollectionAreas;
-}
-
-let dataCollectionAreasIterator = makeDataCollectionAreasIterator();
 
 db.defaults(dbDefaults)
   .write();
 
-schedule.scheduleJob('*/20 * * * * * ', getUpdates);
+schedule.scheduleJob('*/30 * * * * * ', getUpdates);
+schedule.scheduleJob('*/20 * * * * * ', countWazers);
+schedule.scheduleJob('0 * * * * ', sendWazersReport);
 
 function getUpdates() {
   logger.info('getting updates');
-  let areaIteration = dataCollectionAreasIterator.next();
+  let url = addBoundsToUrl(options.areaBounds, options.requestUrl);
 
-  if (areaIteration.done) {
-    dataCollectionAreasIterator = makeDataCollectionAreasIterator();
-    getUpdates();
-  } else {
-    let url = addBoundsToUrl(areaIteration.value, options.requestUrl);
-    https.get(url, res => {
-      res.setEncoding('utf8');
-      let rawData = '';
-      res.on('data', (chunk) => { rawData += chunk; });
-      res.on('end', () => {
-        try {
-          const parsedData = JSON.parse(rawData);
-          processData(parsedData);
-        } catch (e) {
-          console.error(e.message);
-        }
-      });
-    }).on('error', console.error);
-  }
+  axios.get(url)
+    .then(response => {
+      const data = response.data;
+      processData(data);
+    })
+    .catch(() => logger.info(`ERROR: can't get updates`));
 }
 
 function processData(data) {
-  let { users, alerts } = data;
+  let { alerts } = data;
   if (alerts) {
     processAlerts(alerts);
   }
@@ -128,4 +106,49 @@ function addBoundsToUrl(bounds, sourceUrl) {
     url += `&${key}=${val}`;
   });
   return url;
+}
+
+function countWazers() {
+  logger.info('counting wazers');
+  let previousMaxWazersOnline = db.get('maxWazersOnline').value() || 0;
+
+  axios.get(options.broadcastFeedUrl)
+    .then(response => {
+      const data = response.data;
+
+      let actualWazersOnline = 0;
+      data.usersOnJams.forEach(jam => {
+        actualWazersOnline += Number(jam.wazersCount);
+      });
+
+      if (actualWazersOnline > previousMaxWazersOnline) {
+        db.set('maxWazersOnline', actualWazersOnline).write();
+      }
+    })
+    .catch(() => logger.info(`ERROR: can't count wazers`));
+}
+
+function sendWazersReport() {
+  let maxWazersOnline = db.get('maxWazersOnline').value() || 0;
+
+  if (maxWazersOnline > 0) {
+    let wazersNoun = getWazersNoun(maxWazersOnline);
+    let messageText = `Зафіксовано ${maxWazersOnline} ${wazersNoun} онлайн 🚙🚕🚚`;
+    tg.sendMessage(channelId, messageText);
+  }
+
+  db.set('maxWazersOnline', 0).write();
+}
+
+function getWazersNoun(count) {
+  switch (count) {
+    case 1:
+      return 'вейзер';
+    case 2:
+    case 3:
+    case 4:
+      return 'вейзери';
+    default:
+      return 'вейзерів';
+  }
 }
